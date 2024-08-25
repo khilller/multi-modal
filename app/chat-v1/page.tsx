@@ -21,16 +21,15 @@ export default function Chat() {
     setConversation(prev => [...prev, userMessage]);
     setInput('');
 
-    const { messages, newMessage } = await continueConversation([
+    const { messages, newMessage, display } = await continueConversation([
       ...conversation.map(({ role, content }) => ({ role, content })),
       { role: 'user', content: input },
     ]);
 
     setConversation(messages);
-    console.log(messages.map(({ role, content }) => ({ role, content })))
 
     
-    let assistantMessage: Message = { role: 'assistant', content: ''};
+    let assistantMessage: Message = { role: 'assistant', content: '', display};
     setConversation(prev => [...prev, assistantMessage]);
 
     console.log(messages.map(({ role, content }) => ({ role, content })))
