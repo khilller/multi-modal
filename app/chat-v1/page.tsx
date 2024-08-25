@@ -8,6 +8,7 @@ export const maxDuration = 60;
 
 export default function Chat() {
   const [conversation, setConversation] = useState<Message[]>([]);
+  const [uiConversation, setUIConversation] = useState<Message[]>([]); 
   const [input, setInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -19,6 +20,7 @@ export default function Chat() {
     
     const userMessage: Message = { role: 'user', content: input };
     setConversation(prev => [...prev, userMessage]);
+    setUIConversation(prev => [...prev, userMessage]);
     setInput('');
 
     const { messages, newMessage, display } = await continueConversation([
@@ -26,11 +28,12 @@ export default function Chat() {
       { role: 'user', content: input },
     ]);
 
-    setConversation(messages);
+    //setConversation(messages);
 
     
     let assistantMessage: Message = { role: 'assistant', content: '', display};
     setConversation(prev => [...prev, assistantMessage]);
+    setUIConversation(prev => [...prev, assistantMessage]);
 
     console.log(messages.map(({ role, content }) => ({ role, content })))
 
@@ -53,7 +56,7 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
-      {conversation.map((m, index) => (
+      {uiConversation.map((m, index) => (
         <div key={index} className={`whitespace-pre-wrap mb-4 ${m.role === 'user' ? 'text-blue-600' : 'text-green-600'}`}>
           <strong>{m.role === 'user' ? 'User: ' : 'AI: '}</strong>
           {m.content}
