@@ -6,6 +6,54 @@ import { Message, continueConversation } from '@/utils/actions';
 
 export const maxDuration = 60;
 
+
+function resizeAndConvertToBase64(file: File, maxSizeInMB: number = 1.5): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const elem = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+  
+          // Calculate the width and height, constraining the proportions
+          if (width > height) {
+            if (width > 1024) {
+              height *= 1024 / width;
+              width = 1024;
+            }
+          } else {
+            if (height > 1024) {
+              width *= 1024 / height;
+              height = 1024;
+            }
+          }
+  
+          elem.width = width;
+          elem.height = height;
+          const ctx = elem.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+  
+          // Convert the image to base64 and reduce quality if necessary
+          let quality = 0.9;
+          let base64 = elem.toDataURL('image/jpeg', quality);
+          
+          while (base64.length / 1024 / 1024 > maxSizeInMB && quality > 0.1) {
+            quality -= 0.1;
+            base64 = elem.toDataURL('image/jpeg', quality);
+          }
+  
+          resolve(base64);
+        };
+        img.onerror = error => reject(error);
+      };
+      reader.onerror = error => reject(error);
+    });
+  }
+
 export default function Chat() {
   const [conversation, setConversation] = useState<Message[]>([]);
   const [uiConversation, setUIConversation] = useState<Message[]>([]); 
@@ -17,16 +65,26 @@ export default function Chat() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
-    
-    const userMessage: Message = { role: 'user', content: input };
+
+    let base64Image: string | undefined;
+    if (fileInputRef.current?.files?.[0]) {
+        try {
+          base64Image = await resizeAndConvertToBase64(fileInputRef.current.files[0], 1.5);
+        } catch (error) {
+          console.error('Error processing image:', error);
+          // Handle the error appropriately
+        }
+      }
+    const userMessage: Message = { role: 'user', content: input, image: base64Image || undefined };
+
     setConversation(prev => [...prev, userMessage]);
     setUIConversation(prev => [...prev, userMessage]);
     setInput('');
 
     const { messages, newMessage, display } = await continueConversation([
-      ...conversation.map(({ role, content }) => ({ role, content })),
-      { role: 'user', content: input },
-    ]);
+      ...conversation.map(({ role, content, image }) => ({ role, content, image })),
+      userMessage,
+    ], base64Image || undefined);
 
     //setConversation(messages);
 
@@ -61,6 +119,7 @@ export default function Chat() {
           <strong>{m.role === 'user' ? 'User: ' : 'AI: '}</strong>
           {m.content}
           {m.display}
+          {m.image && <img src={m.image} alt="User uploaded" className="max-w-full h-32 mt-2" />}
           
         </div>
       ))}
