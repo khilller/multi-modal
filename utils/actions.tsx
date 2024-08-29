@@ -31,6 +31,7 @@ export async function continueConversation(history: Message[], image?: string) {
 
   if (image) {
 
+    console.log(history)
     const { textStream, toolResults: toolResultsPromise } = await streamText({
       model: openai('gpt-4o-mini'),
       system: "You are the best AEC contractor in the world. You will identify the image and explaing what the materials are in about 6 lines. if its not clear, prompt the user to provide only construction based images. ",
@@ -44,6 +45,7 @@ export async function continueConversation(history: Message[], image?: string) {
               type: 'image',
               image: image,
             }
+   
           ]
         }
       ],
@@ -56,6 +58,7 @@ export async function continueConversation(history: Message[], image?: string) {
         console.log(`Total tokens: ${totalTokens}`);
         console.log(text);
       }
+      
     });
 
     (async () => {
@@ -229,3 +232,35 @@ export async function continueConversation(history: Message[], image?: string) {
 
   } else
  */
+
+  /**
+   * toolChoice: 'required',
+      tools: {
+        identifyImage: {
+          description: 'Identify the image and explain what the construction materials are',
+          parameters: z.object({
+            image: z.string().describe(image || 'The image to identify'),
+          }),
+          execute: async ({ image }) => {
+            const result = await streamText({
+              model: openai('gpt-4o-mini'),
+              messages: [
+                ...history,
+                  {
+                    role: 'user',
+                    content: [
+                      { type: 'text', text: history[history.length - 1].content },
+                      { type: 'image', image: image }
+            
+                    ]
+                  }
+              ]
+            })
+            for await (const chunk of result.textStream) {
+              stream.update(chunk);
+            }
+          }
+        }
+      }
+   * 
+  */
