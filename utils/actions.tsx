@@ -31,7 +31,7 @@ export async function continueConversation(history: Message[], image?: string) {
 
   if (image) {
 
-    console.log(history)
+    //console.log(history)
     const { textStream, toolResults: toolResultsPromise } = await streamText({
       model: openai('gpt-4o-mini'),
       system: "You are the best AEC contractor in the world. You will identify the image and explaing what the materials are in about 6 lines. if its not clear, prompt the user to provide only construction based images. ",
@@ -58,7 +58,7 @@ export async function continueConversation(history: Message[], image?: string) {
         console.log(`Total tokens: ${totalTokens}`);
         console.log(text);
       }
-      
+
     });
 
     (async () => {
