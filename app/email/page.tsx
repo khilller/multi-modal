@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Message, processEmailQuery } from '@/utils/email-actions'
 import { readStreamableValue } from 'ai/rsc'
+import MarkdownMessageDisplay from '@/components/MarkdownMessageDisplay'
 
 type Email = {
   id: number;
@@ -100,15 +101,7 @@ export default function Page() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4 max-h-[400px] overflow-y-auto">
-            {messages.map((m, index) => (
-                m && m.role ? (
-                    <div key={index} className='flex p-4 justify-start'>
-                        <div key={index} className={`p-2 rounded ${m.role === 'user' ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                            {m.content}
-                        </div>
-                    </div>
-                ) : null
-            ))}
+            <MarkdownMessageDisplay messages={messages} />
             <div ref={messagesEndRef} />
           </div>
         </CardContent>

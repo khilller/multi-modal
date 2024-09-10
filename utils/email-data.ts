@@ -179,20 +179,14 @@ export const emailList = [
             "labels": ["internal", "meeting"]
             },
             {
-                "project_name": "Green Spaces Community Center",
-                "emails": [
-                // ... (previous Green Spaces Community Center emails remain unchanged)
-                {
-                    "id": "GS010",
-                    "from": "client@greenspaces.org",
-                    "to": "emily.wong@designarch.com",
-                    "subject": "Re: Green Spaces Community Center - Design Updates",
-                    "body": "Dear Emily,\n\nThank you for the comprehensive update. We're thrilled with the progress, especially the inclusion of the community garden and the flexibility for future expansion.\n\nRegarding the LEED Gold certification, we believe it's worth the additional investment. Please proceed with this goal in mind.\n\nOur board has also expressed interest in incorporating some public art installations. Is this something we can discuss in our next meeting?\n\nLooking forward to the next steps.\n\nBest regards,\nEmma Green",
-                    "date": "2024-09-25T09:00:00Z",
-                    "labels": ["client", "feedback", "art"]
-                }
-                ]
-            },
+                "id": "GS010",
+                "from": "client@greenspaces.org",
+                "to": "emily.wong@designarch.com",
+                "subject": "Re: Green Spaces Community Center - Design Updates",
+                "body": "Dear Emily,\n\nThank you for the comprehensive update. We're thrilled with the progress, especially the inclusion of the community garden and the flexibility for future expansion.\n\nRegarding the LEED Gold certification, we believe it's worth the additional investment. Please proceed with this goal in mind.\n\nOur board has also expressed interest in incorporating some public art installations. Is this something we can discuss in our next meeting?\n\nLooking forward to the next steps.\n\nBest regards,\nEmma Green",
+                "date": "2024-09-25T09:00:00Z",
+                "labels": ["client", "feedback", "art"]
+            }
             ]
         },
         {
