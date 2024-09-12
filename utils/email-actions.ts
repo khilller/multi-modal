@@ -48,10 +48,11 @@ function formatEmail(email: Email | undefined, project: string | undefined): str
 
 export async function processEmailQuery(history: Message[]) {
   const stream = createStreamableValue('');
+  const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
 
   const { textStream, toolResults: toolResultsPromise } = await streamText({
     model: openai('gpt-4o-mini-2024-07-18'),
-    system: "You are an AI assistant that helps manage emails. You can search for emails, summarize emails, and send email replies. When searching for emails, consider the sender's name or email address as well as the subject and content. Try asking me to search for emails with a specific query or summarize a list of emails.",
+    system: "You are an AI assistant that helps manage emails. You can search for emails, summarize emails, and send email replies. When searching for emails, consider the sender's name or email address as well as the subject and content. Try asking me to search for emails with a specific query or summarize a list of emails. use markdown to format your response. If its a list, provide checkboxes. Make the response readable.",
     messages: [
         ...history,
         {
@@ -69,7 +70,7 @@ export async function processEmailQuery(history: Message[]) {
           project: z.string().describe('The project to search in, leave empty to search in all projects'),
           subject: z.string().describe('The subject of the email, leave empty to search in all subjects'),
           body: z.string().describe('The body of the email, leave empty to search in all bodies'),
-          date: z.string().describe('The date of the email, leave empty to search in all dates'),
+          date: z.string().describe('The date of the email, use when the user asks for latest emails, or a specific date (format: YYYY-MM-DD)'),
         }),
         execute: async ({ query, project, subject, body, date,  }) => {
 
@@ -91,7 +92,7 @@ export async function processEmailQuery(history: Message[]) {
               
                       const matchSubject = subject ? email.subject?.toLowerCase().includes(subject.toLowerCase()) : true;
                       const matchBody = body ? email.body?.toLowerCase().includes(body.toLowerCase()) : true;
-                      const matchDate = date ? email.date.includes(date) : true;
+                      const matchDate = date ? new Date(email.date) >= new Date(date) : true;
               
                       return matchQuery && matchSubject && matchBody && matchDate;
                     });

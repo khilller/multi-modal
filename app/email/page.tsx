@@ -7,6 +7,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Message, processEmailQuery } from '@/utils/email-actions'
 import { readStreamableValue } from 'ai/rsc'
 import MarkdownMessageDisplay from '@/components/MarkdownMessageDisplay'
+import { Plus, Send } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 type Email = {
   id: number;
@@ -67,10 +69,7 @@ export default function Page() {
       }
 
       // Update search results if applicable
-      if (results.searchResults) {
-        setSearchResults(results.searchResults)
-      }
-
+   
     } catch (error) {
       console.error(error)
       setMessages(prev => [...prev, { role: 'assistant', content: 'An error occurred. Please try again.' }])
@@ -93,70 +92,59 @@ export default function Page() {
     setReplyContent('')
   }
 
+  const handleRefresh = () => {
+    window.location.reload()
+    setMessages([])
+    setInput("")
+}
+
   return (
-    <div className="container mx-auto p-4">
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Email Chatbot</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4 max-h-[400px] overflow-y-auto">
+    <main className="flex flex-col bg-white">
+      <div className="flex-grow overflow-y-auto p-4">
+        <div className="max-w-2xl mx-auto mb-20"> {/* Added bottom margin to prevent content from being hidden behind the input */}
+          <div className="flex flex-col gap-4 mb-4">
             <MarkdownMessageDisplay messages={messages} />
-            <div ref={messagesEndRef} />
+            {isLoading && (
+              <div className="text-gray-500 italic">AI is thinking...</div>
+            )}
           </div>
-        </CardContent>
-        <CardFooter>
-          <form onSubmit={handleSubmit} className="flex w-full space-x-2">
-            <Input
-              value={input}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+      <div className="border-t border-gray-200 bg-white fixed bottom-0 left-0 right-0">
+        <div className="max-w-2xl mx-auto relative">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute left-7 top-1/2 transform -translate-y-1/2 size-7 rounded-full bg-background p-0"
+                  onClick={handleRefresh}
+                  >
+                  <Plus size={16} />
+                  <span className="sr-only">New Chat</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>New Chat</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <form className="p-4 flex items-center gap-2" onSubmit={handleSubmit}>
+            <Input 
+              className="flex-grow bg-white border-gray-300 pl-12" // Added left padding to accommodate the new button
+              placeholder="Send a message" 
+              value={input} 
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about your emails or request a summary..."
-              className="flex-grow"
-              disabled={isLoading}
             />
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Processing...' : 'Send'}
+            <Button type="submit" className="bg-primary text-white hover:bg-gray-800">
+              <Send className="h-4 w-4" />
             </Button>
           </form>
-        </CardFooter>
-      </Card>
-
-      {searchResults.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Search Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {searchResults.map(email => (
-              <div key={email.id} className="mb-2 p-2 border rounded">
-                <p><strong>From:</strong> {email.sender}</p>
-                <p><strong>Subject:</strong> {email.subject}</p>
-                <p>{email.content}</p>
-                <Button onClick={() => setSelectedEmail(email)} className="mt-2">Reply</Button>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {selectedEmail && (
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle>Reply to {selectedEmail.sender}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleReply}>
-              <Input
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="Type your reply..."
-                className="w-full mb-2"
-              />
-              <Button type="submit">Send Reply</Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  )
+        </div>
+      </div>
+    </main>
+  );
 }
+
+
+
