@@ -10,9 +10,16 @@ export default function Chat() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
+    <div className="flex flex-col w-full max-w-md py-10 mx-auto stretch">
       {messages.map(m => (
-        <div key={m.id} className="whitespace-pre-wrap">
+        <div 
+          key={m.id} 
+          className={`whitespace-pre-wrap mb-4 ${
+            m.role === 'user' 
+              ? 'bg-blue-500 text-white p-3 rounded-lg ml-auto max-w-[80%]' 
+              : 'bg-gray-100 p-3 rounded-lg mr-auto max-w-[80%]'
+          }`}
+        >
           {m.role === 'user' ? 'User: ' : 'AI: '}
           {m.content}
           <div>
